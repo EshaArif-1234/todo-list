@@ -5,9 +5,48 @@ export default function TaskItem({ task, onDelete, onEdit }) {
   const [isEditing, setIsEditing] = useState(false)
   const [newText, setNewText] = useState(task.text)
 
-  const handleEdit = () => {
-    onEdit(task.id, { text: newText })
-    setIsEditing(false)
+  // DELETE task from DB
+  const deleteTask = async () => {
+    try {
+      const res = await fetch('/api/Delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: task._id }), // use _id from MongoDB
+      })
+
+      if (res.ok) {
+        onDelete(task._id) // call parent function to update UI
+      } else {
+        console.error('Failed to delete task')
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error)
+    }
+  }
+
+  // EDIT task in DB
+  const handleEdit = async () => {
+    try {
+      const res = await fetch('/api/Edit', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: task._id, text: newText }),
+      })
+
+      if (res.ok) {
+        const updatedTask = await res.json()
+        onEdit(task._id, updatedTask) // call parent to update UI
+        setIsEditing(false)
+      } else {
+        console.error('Failed to update task')
+      }
+    } catch (error) {
+      console.error('Error updating task:', error)
+    }
   }
 
   return (
@@ -18,7 +57,7 @@ export default function TaskItem({ task, onDelete, onEdit }) {
             type="text"
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
-            className="px-2 py-1 rounded  text-[white] bg-transparent outline-none"
+            className="px-2 py-1 rounded text-white bg-transparent outline-none"
           />
         ) : (
           <span>{task.text}</span>
@@ -40,7 +79,7 @@ export default function TaskItem({ task, onDelete, onEdit }) {
             <Edit2 size={20} />
           </button>
         )}
-        <button onClick={() => onDelete(task.id)} className="text-red-500 hover:text-red-700">
+        <button onClick={deleteTask} className="text-red-500 hover:text-red-700">
           <Trash2 size={20} />
         </button>
       </div>
