@@ -28,7 +28,7 @@ export default function HomePage() {
     setTasks([...tasks, newTask]);
   };
 
-  const deleteTask = (id) => {
+  const deleteTask = async (id: string) => {
     setTasks(tasks.filter(task => task._id !== id))
   }
   
