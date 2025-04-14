@@ -7,7 +7,8 @@ const TaskSchema = new mongoose.Schema({
 
 const Task = mongoose.models.Task || mongoose.model('Task', TaskSchema)
 
-export async function POST(req) {
+
+  export async function POST(req) {
   try {
     const { text } = await req.json()
     
